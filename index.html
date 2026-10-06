@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!-- Écran de chargement de Strong Island (sv_loadingurl). GMod appelle les fonctions GameDetails, SetFilesTotal,
+     SetFilesNeeded, DownloadingFile et SetStatusChanged. JavaScript ES5 seulement (navigateur ancien du jeu). -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Strong Island</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b120b; color: #faf6e6;
+    font-family: "Trebuchet MS", Verdana, sans-serif; }
+  #sky { position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+    background: #0b120b;
+    background: -webkit-linear-gradient(top, #1a2e1f 0%, #0b120b 60%, #050805 100%);
+    background: linear-gradient(to bottom, #1a2e1f 0%, #0b120b 60%, #050805 100%); }
+  #sun { position: absolute; width: 520px; height: 520px; border-radius: 50%; left: 50%; margin-left: -260px;
+    bottom: -180px; background: #fed100; opacity: 0.12; box-shadow: 0 0 160px 80px rgba(254, 209, 0, 0.18); }
+  #band { position: absolute; left: 0; right: 0; top: 0; height: 9px; }
+  #band div { height: 3px; }
+  #palms { position: absolute; left: 0; right: 0; bottom: 0; height: 260px; }
+  #main { position: absolute; left: 0; right: 0; top: 18%; text-align: center; }
+  h1 { margin: 0; font-size: 84px; letter-spacing: 10px; color: #fed100; font-weight: 900;
+    text-shadow: 0 4px 0 #009b3a, 0 8px 24px rgba(0, 0, 0, 0.7); }
+  #tagline { margin-top: 10px; font-size: 22px; letter-spacing: 3px; color: rgba(250, 246, 230, 0.75); }
+  #server { margin-top: 26px; font-size: 18px; color: rgba(250, 246, 230, 0.6); }
+  #tip { margin: 60px auto 0; width: 760px; min-height: 60px; font-size: 21px; line-height: 30px;
+    color: #faf6e6; -webkit-transition: opacity 0.8s; transition: opacity 0.8s; }
+  #tip b { color: #fed100; }
+  #bottom { position: absolute; left: 10%; right: 10%; bottom: 60px; }
+  #status { font-size: 17px; margin-bottom: 10px; color: rgba(250, 246, 230, 0.85); }
+  #file { font-size: 13px; margin-top: 8px; color: rgba(250, 246, 230, 0.45); white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; }
+  #bar { height: 14px; border-radius: 7px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+  #fill { height: 100%; width: 0%; border-radius: 7px; background: #009b3a;
+    background: -webkit-linear-gradient(left, #d62828, #fed100, #009b3a);
+    background: linear-gradient(to right, #d62828, #fed100, #009b3a); -webkit-transition: width 0.4s; transition: width 0.4s; }
+  #percent { float: right; color: #fed100; font-weight: bold; }
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<div id="sun"></div>
+<div id="band"><div style="background:#d62828"></div><div style="background:#fed100"></div><div style="background:#009b3a"></div></div>
+
+<!-- Palmiers en silhouette -->
+<svg id="palms" viewBox="0 0 1600 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#050805" d="M0 230 Q400 200 800 225 T1600 215 V260 H0 Z"/>
+  <g fill="#050805">
+    <path d="M150 240 Q160 140 190 70 L198 72 Q172 150 166 240 Z"/>
+    <path d="M194 70 Q140 40 90 60 Q140 52 190 78 Z"/>
+    <path d="M194 70 Q240 30 300 50 Q240 48 198 80 Z"/>
+    <path d="M194 70 Q150 80 120 120 Q160 90 196 78 Z"/>
+    <path d="M194 70 Q240 85 262 128 Q228 92 192 78 Z"/>
+    <path d="M194 70 Q190 30 210 5 Q200 40 200 74 Z"/>
+    <path d="M1380 240 Q1395 130 1440 60 L1448 64 Q1408 140 1398 240 Z"/>
+    <path d="M1444 60 Q1390 25 1335 45 Q1390 40 1442 70 Z"/>
+    <path d="M1444 60 Q1500 25 1560 50 Q1500 42 1448 70 Z"/>
+    <path d="M1444 60 Q1400 75 1375 115 Q1410 82 1446 68 Z"/>
+    <path d="M1444 60 Q1495 80 1512 125 Q1478 85 1442 68 Z"/>
+  </g>
+</svg>
+
+<div id="main">
+  <h1>STRONG ISLAND</h1>
+  <div id="tagline">KINGSTON · JAMAÏQUE · 1970</div>
+  <div id="server"></div>
+  <div id="tip"></div>
+</div>
+
+<div id="bottom">
+  <div id="status">Connexion à l'île… <span id="percent"></span></div>
+  <div id="bar"><div id="fill"></div></div>
+  <div id="file"></div>
+</div>
+
+<script>
+  var tips = [
+    "Appuie sur <b>F1</b> en jeu : le guide de l'île, les touches et tous les métiers.",
+    "Le <b>Pizzaiolo</b> livre chaud ? Gros pourboire. Froide ? Rien du tout.",
+    "Mourir chez quelqu'un, c'est parfois revenir… Le <b>Chasseur de fantômes</b> s'en occupe.",
+    "Le <b>Banquier</b> promet +10 000 %. Sa courbe peut aussi faire -100 %.",
+    "<b>Alt + E</b> : s'asseoir partout, sur un muret, un banc, le toit d'une voiture.",
+    "Toilettes bouchées ? <b>/plombier</b>. Il a sa ventouse.",
+    "En prison ? <b>/avocat</b> : s'il plaide bien, tu sors plus vite.",
+    "Les armes et les imprimantes arrivent par la mer, sur des bateaux clandestins.",
+    "Le <b>Maire</b> fixe les impôts. Trop haut ? Aux citoyens de se révolter.",
+    "À ta mort, tu lâches <b>100 $</b> et ta poche. Ton cadavre peut être fouillé.",
+    "Un établissement sale ? <b>/plainte</b>, et l'inspecteur d'hygiène débarque."
+  ];
+  var tipIndex = Math.floor(Math.random() * tips.length);
+  var total = 0, needed = 0;
+
+  function showTip() {
+    var el = document.getElementById("tip");
+    el.style.opacity = 0;
+    setTimeout(function () {
+      el.innerHTML = tips[tipIndex % tips.length];
+      tipIndex++;
+      el.style.opacity = 1;
+    }, 800);
+  }
+  showTip();
+  setInterval(showTip, 8000);
+
+  function refresh() {
+    if (total <= 0) return;
+    var done = Math.max(0, total - needed);
+    var pct = Math.min(100, Math.round(done / total * 100));
+    document.getElementById("fill").style.width = pct + "%";
+    document.getElementById("percent").innerHTML = pct + " %";
+  }
+
+  // Appelées par GMod.
+  function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+    document.getElementById("server").innerHTML = servername + " · " + mapname;
+  }
+  function SetFilesTotal(t) { total = t; refresh(); }
+  function SetFilesNeeded(n) { needed = n; refresh(); }
+  function DownloadingFile(fileName) {
+    document.getElementById("file").innerHTML = fileName;
+    needed = Math.max(0, needed - 1);
+    refresh();
+  }
+  function SetStatusChanged(status) {
+    document.getElementById("status").innerHTML = status + ' <span id="percent"></span>';
+    refresh();
+  }
+</script>
+</body>
+</html>
