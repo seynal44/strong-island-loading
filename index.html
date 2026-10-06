@@ -1,78 +1,176 @@
 <!DOCTYPE html>
-<!-- Écran de chargement de Strong Island (sv_loadingurl). GMod appelle les fonctions GameDetails, SetFilesTotal,
-     SetFilesNeeded, DownloadingFile et SetStatusChanged. JavaScript ES5 seulement (navigateur ancien du jeu). -->
+<!-- Écran de chargement de Strong Island (sv_loadingurl, hébergé sur GitHub Pages : seynal44/strong-island-loading).
+     GMod appelle GameDetails, SetFilesTotal, SetFilesNeeded, DownloadingFile et SetStatusChanged.
+     JavaScript ES5 et CSS préfixé seulement : le navigateur du jeu peut être ancien. -->
 <html lang="fr">
 <head>
 <meta charset="utf-8">
 <title>Strong Island</title>
+<link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b120b; color: #faf6e6;
-    font-family: "Trebuchet MS", Verdana, sans-serif; }
-  #sky { position: absolute; left: 0; top: 0; right: 0; bottom: 0;
-    background: #0b120b;
-    background: -webkit-linear-gradient(top, #1a2e1f 0%, #0b120b 60%, #050805 100%);
-    background: linear-gradient(to bottom, #1a2e1f 0%, #0b120b 60%, #050805 100%); }
-  #sun { position: absolute; width: 520px; height: 520px; border-radius: 50%; left: 50%; margin-left: -260px;
-    bottom: -180px; background: #fed100; opacity: 0.12; box-shadow: 0 0 160px 80px rgba(254, 209, 0, 0.18); }
-  #band { position: absolute; left: 0; right: 0; top: 0; height: 9px; }
-  #band div { height: 3px; }
-  #palms { position: absolute; left: 0; right: 0; bottom: 0; height: 260px; }
-  #main { position: absolute; left: 0; right: 0; top: 18%; text-align: center; }
-  h1 { margin: 0; font-size: 84px; letter-spacing: 10px; color: #fed100; font-weight: 900;
-    text-shadow: 0 4px 0 #009b3a, 0 8px 24px rgba(0, 0, 0, 0.7); }
-  #tagline { margin-top: 10px; font-size: 22px; letter-spacing: 3px; color: rgba(250, 246, 230, 0.75); }
-  #server { margin-top: 26px; font-size: 18px; color: rgba(250, 246, 230, 0.6); }
-  #tip { margin: 60px auto 0; width: 760px; min-height: 60px; font-size: 21px; line-height: 30px;
-    color: #faf6e6; -webkit-transition: opacity 0.8s; transition: opacity 0.8s; }
-  #tip b { color: #fed100; }
-  #bottom { position: absolute; left: 10%; right: 10%; bottom: 60px; }
-  #status { font-size: 17px; margin-bottom: 10px; color: rgba(250, 246, 230, 0.85); }
-  #file { font-size: 13px; margin-top: 8px; color: rgba(250, 246, 230, 0.45); white-space: nowrap; overflow: hidden;
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #120a1e; color: #fff8e8;
+    font-family: "Nunito", "Trebuchet MS", Verdana, sans-serif; }
+
+  /* Ciel de coucher de soleil */
+  #sky { position: absolute; left: 0; top: 0; right: 0; height: 70%;
+    background: #2a1a4a;
+    background: -webkit-linear-gradient(top, #120a2a 0%, #3a1d5c 30%, #a3365f 58%, #f0743e 80%, #ffc65a 100%);
+    background: linear-gradient(to bottom, #120a2a 0%, #3a1d5c 30%, #a3365f 58%, #f0743e 80%, #ffc65a 100%); }
+
+  /* Soleil posé sur l'horizon */
+  #sun { position: absolute; left: 50%; top: 70%; width: 380px; height: 380px; margin: -190px 0 0 -190px;
+    border-radius: 50%;
+    background: #ffd84a;
+    background: -webkit-radial-gradient(center, circle, #fff3a8 0%, #ffd84a 45%, #ff9a2e 100%);
+    background: radial-gradient(circle, #fff3a8 0%, #ffd84a 45%, #ff9a2e 100%);
+    box-shadow: 0 0 120px 40px rgba(255, 170, 60, 0.55), 0 0 300px 120px rgba(255, 110, 60, 0.25);
+    -webkit-animation: glow 6s ease-in-out infinite; animation: glow 6s ease-in-out infinite; }
+  @-webkit-keyframes glow { 50% { box-shadow: 0 0 150px 55px rgba(255, 170, 60, 0.65), 0 0 320px 140px rgba(255, 110, 60, 0.3); } }
+  @keyframes glow { 50% { box-shadow: 0 0 150px 55px rgba(255, 170, 60, 0.65), 0 0 320px 140px rgba(255, 110, 60, 0.3); } }
+
+  /* Mer, qui cache le bas du soleil */
+  #sea { position: absolute; left: 0; right: 0; top: 70%; bottom: 0; overflow: hidden;
+    background: #0d1e3a;
+    background: -webkit-linear-gradient(top, #3b2a52 0%, #142a4a 25%, #08172c 100%);
+    background: linear-gradient(to bottom, #3b2a52 0%, #142a4a 25%, #08172c 100%); }
+  .glint { position: absolute; left: 50%; height: 3px; border-radius: 2px; background: #ffcf6a; opacity: 0.8;
+    -webkit-animation: shimmer 3s ease-in-out infinite; animation: shimmer 3s ease-in-out infinite; }
+  @-webkit-keyframes shimmer { 0%, 100% { opacity: 0.25; -webkit-transform: scaleX(0.6); } 50% { opacity: 0.9; -webkit-transform: scaleX(1); } }
+  @keyframes shimmer { 0%, 100% { opacity: 0.25; transform: scaleX(0.6); } 50% { opacity: 0.9; transform: scaleX(1); } }
+
+  /* Palmiers en silhouette, qui se balancent */
+  .palm { position: absolute; bottom: 0; width: 520px; height: 760px; fill: #07040d;
+    -webkit-transform-origin: 50% 100%; transform-origin: 50% 100%;
+    -webkit-animation: sway 7s ease-in-out infinite; animation: sway 7s ease-in-out infinite; }
+  #palmL { left: -110px; }
+  #palmR { right: -140px; -webkit-animation-delay: -3s; animation-delay: -3s; }
+  @-webkit-keyframes sway { 0%, 100% { -webkit-transform: rotate(-1.2deg); } 50% { -webkit-transform: rotate(1.2deg); } }
+  @keyframes sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
+  #shore { position: absolute; left: 0; bottom: 0; width: 100%; height: 70px; fill: #07040d; }
+
+  #band { position: absolute; left: 0; right: 0; top: 0; height: 6px; }
+  #band div { height: 2px; }
+
+  /* Contenu */
+  #main { position: absolute; left: 0; right: 0; top: 9%; text-align: center; }
+  h1 { margin: 0; font-family: "Bowlby One", "Arial Black", Impact, sans-serif; font-weight: normal;
+    font-size: 96px; letter-spacing: 6px; color: #ffd400;
+    text-shadow: 0 5px 0 #009b3a, 0 10px 0 rgba(0, 0, 0, 0.35), 0 0 40px rgba(255, 180, 60, 0.45); }
+  #tagline { margin-top: 14px; font-size: 22px; font-weight: 800; letter-spacing: 8px; color: #ffe9c4;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); }
+  #server { margin-top: 10px; font-size: 16px; color: rgba(255, 240, 220, 0.7); }
+
+  #features { margin-top: 34px; }
+  .feat { display: inline-block; margin: 0 7px; padding: 8px 16px; border-radius: 18px; font-size: 15px; font-weight: 800;
+    background: rgba(10, 6, 20, 0.55); border: 1px solid rgba(255, 212, 0, 0.35); color: #fff3d6; }
+  .feat b { color: #ffd400; }
+
+  #card { margin: 34px auto 0; width: 820px; padding: 18px 26px; border-radius: 12px; text-align: left;
+    background: rgba(10, 6, 20, 0.62); border-left: 5px solid #ffd400;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+  #card .label { font-size: 13px; font-weight: 800; letter-spacing: 3px; color: #ffd400; }
+  #tip { margin-top: 6px; min-height: 58px; font-size: 22px; line-height: 29px; color: #fff8e8;
+    -webkit-transition: opacity 0.7s; transition: opacity 0.7s; }
+  #tip b { color: #ffd400; }
+
+  /* Progression (au-dessus de la petite fenêtre de GMod, en bas à droite) */
+  #bottom { position: absolute; left: 50%; width: 900px; margin-left: -450px; bottom: 130px; }
+  #statusline { font-size: 17px; font-weight: 800; margin-bottom: 9px; color: #fff3d6;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); }
+  #percent { float: right; color: #ffd400; }
+  #bar { height: 16px; border-radius: 8px; background: rgba(0, 0, 0, 0.5); overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+  #fill { height: 100%; width: 0%; border-radius: 8px; background: #009b3a;
+    background: -webkit-linear-gradient(left, #d62828, #ffd400, #009b3a);
+    background: linear-gradient(to right, #d62828, #ffd400, #009b3a);
+    -webkit-transition: width 0.4s; transition: width 0.4s; }
+  #file { font-size: 13px; margin-top: 8px; color: rgba(255, 240, 220, 0.55); white-space: nowrap; overflow: hidden;
     text-overflow: ellipsis; }
-  #bar { height: 14px; border-radius: 7px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
-  #fill { height: 100%; width: 0%; border-radius: 7px; background: #009b3a;
-    background: -webkit-linear-gradient(left, #d62828, #fed100, #009b3a);
-    background: linear-gradient(to right, #d62828, #fed100, #009b3a); -webkit-transition: width 0.4s; transition: width 0.4s; }
-  #percent { float: right; color: #fed100; font-weight: bold; }
 </style>
 </head>
 <body>
 <div id="sky"></div>
 <div id="sun"></div>
-<div id="band"><div style="background:#d62828"></div><div style="background:#fed100"></div><div style="background:#009b3a"></div></div>
+<div id="sea"></div>
 
-<!-- Palmiers en silhouette -->
-<svg id="palms" viewBox="0 0 1600 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-  <path fill="#050805" d="M0 230 Q400 200 800 225 T1600 215 V260 H0 Z"/>
-  <g fill="#050805">
-    <path d="M150 240 Q160 140 190 70 L198 72 Q172 150 166 240 Z"/>
-    <path d="M194 70 Q140 40 90 60 Q140 52 190 78 Z"/>
-    <path d="M194 70 Q240 30 300 50 Q240 48 198 80 Z"/>
-    <path d="M194 70 Q150 80 120 120 Q160 90 196 78 Z"/>
-    <path d="M194 70 Q240 85 262 128 Q228 92 192 78 Z"/>
-    <path d="M194 70 Q190 30 210 5 Q200 40 200 74 Z"/>
-    <path d="M1380 240 Q1395 130 1440 60 L1448 64 Q1408 140 1398 240 Z"/>
-    <path d="M1444 60 Q1390 25 1335 45 Q1390 40 1442 70 Z"/>
-    <path d="M1444 60 Q1500 25 1560 50 Q1500 42 1448 70 Z"/>
-    <path d="M1444 60 Q1400 75 1375 115 Q1410 82 1446 68 Z"/>
-    <path d="M1444 60 Q1495 80 1512 125 Q1478 85 1442 68 Z"/>
+<!-- Palmiers : tronc courbé et palmes -->
+<svg id="palmL" class="palm" viewBox="0 0 520 760" xmlns="http://www.w3.org/2000/svg">
+  <path d="M250 760 C262 620 300 460 330 300 L346 304 C318 460 282 620 276 760 Z"/>
+  <path d="M338 300 C280 240 190 230 110 268 C190 250 270 262 334 316 Z"/>
+  <path d="M338 300 C300 210 230 160 150 150 C230 180 290 230 330 312 Z"/>
+  <path d="M338 300 C360 210 420 170 500 170 C430 190 380 230 346 312 Z"/>
+  <path d="M338 300 C400 260 470 270 520 330 C460 300 400 295 344 318 Z"/>
+  <path d="M338 300 C310 340 260 400 240 470 C280 410 320 360 346 316 Z"/>
+  <path d="M338 300 C370 340 400 400 410 470 C385 410 360 360 334 316 Z"/>
+  <path d="M338 300 C335 240 350 180 380 130 C360 190 352 250 346 306 Z"/>
+</svg>
+<svg id="palmR" class="palm" viewBox="0 0 520 760" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(520 0) scale(-1 1)">
+    <path d="M250 760 C262 620 300 460 330 300 L346 304 C318 460 282 620 276 760 Z"/>
+    <path d="M338 300 C280 240 190 230 110 268 C190 250 270 262 334 316 Z"/>
+    <path d="M338 300 C300 210 230 160 150 150 C230 180 290 230 330 312 Z"/>
+    <path d="M338 300 C360 210 420 170 500 170 C430 190 380 230 346 312 Z"/>
+    <path d="M338 300 C400 260 470 270 520 330 C460 300 400 295 344 318 Z"/>
+    <path d="M338 300 C310 340 260 400 240 470 C280 410 320 360 346 316 Z"/>
+    <path d="M338 300 C370 340 400 400 410 470 C385 410 360 360 334 316 Z"/>
   </g>
 </svg>
+<svg id="shore" viewBox="0 0 1600 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 30 C200 10 380 40 560 36 C760 32 820 58 1000 52 C1200 46 1380 20 1600 34 V70 H0 Z"/>
+</svg>
+
+<div id="band"><div style="background:#d62828"></div><div style="background:#ffd400"></div><div style="background:#009b3a"></div></div>
 
 <div id="main">
   <h1>STRONG ISLAND</h1>
   <div id="tagline">KINGSTON · JAMAÏQUE · 1970</div>
   <div id="server"></div>
-  <div id="tip"></div>
+  <div id="features">
+    <span class="feat"><b>33</b> métiers</span>
+    <span class="feat">Économie <b>vivante</b></span>
+    <span class="feat">Tempêtes <b>tropicales</b></span>
+    <span class="feat">Fantômes et <b>chasseurs</b></span>
+    <span class="feat">Sound systems <b>reggae</b></span>
+  </div>
+  <div id="card">
+    <div class="label">LE SAVAIS-TU ?</div>
+    <div id="tip"></div>
+  </div>
 </div>
 
 <div id="bottom">
-  <div id="status">Connexion à l'île… <span id="percent"></span></div>
+  <div id="statusline"><span id="status">Connexion à l'île…</span><span id="percent"></span></div>
   <div id="bar"><div id="fill"></div></div>
   <div id="file"></div>
 </div>
 
 <script>
+  // Tout est pensé en 1080p : le texte et la barre se réduisent sur les écrans plus petits.
+  function fit() {
+    var z = Math.min(1, window.innerHeight / 1080, window.innerWidth / 1500);
+    document.getElementById("main").style.zoom = z;
+    document.getElementById("bottom").style.zoom = z;
+    document.getElementById("sun").style.zoom = Math.max(z, 0.6);
+  }
+  fit();
+  window.onresize = fit;
+
+  // Reflet du soleil sur la mer : des traits qui scintillent.
+  (function () {
+    var sea = document.getElementById("sea");
+    for (var i = 0; i < 16; i++) {
+      var g = document.createElement("div");
+      var w = Math.max(24, 300 - i * 17 + Math.random() * 40);
+      g.className = "glint";
+      g.style.width = w + "px";
+      g.style.marginLeft = (-w / 2 + (Math.random() * 30 - 15)) + "px";
+      g.style.top = (8 + i * 11) + "px";
+      g.style.webkitAnimationDelay = (-Math.random() * 3) + "s";
+      g.style.animationDelay = g.style.webkitAnimationDelay;
+      sea.appendChild(g);
+    }
+  })();
+
   var tips = [
     "Appuie sur <b>F1</b> en jeu : le guide de l'île, les touches et tous les métiers.",
     "Le <b>Pizzaiolo</b> livre chaud ? Gros pourboire. Froide ? Rien du tout.",
@@ -84,7 +182,10 @@
     "Les armes et les imprimantes arrivent par la mer, sur des bateaux clandestins.",
     "Le <b>Maire</b> fixe les impôts. Trop haut ? Aux citoyens de se révolter.",
     "À ta mort, tu lâches <b>100 $</b> et ta poche. Ton cadavre peut être fouillé.",
-    "Un établissement sale ? <b>/plainte</b>, et l'inspecteur d'hygiène débarque."
+    "Un établissement sale ? <b>/plainte</b>, et l'inspecteur d'hygiène débarque.",
+    "Une tempête tropicale arrive ? Mets-toi à l'abri : la foudre met le feu.",
+    "Le <b>Logeur</b> a sa première maison offerte. À lui de la louer.",
+    "<b>F4 > Options</b> : choisis la qualité graphique selon ta machine."
   ];
   var tipIndex = Math.floor(Math.random() * tips.length);
   var total = 0, needed = 0;
@@ -96,33 +197,33 @@
       el.innerHTML = tips[tipIndex % tips.length];
       tipIndex++;
       el.style.opacity = 1;
-    }, 800);
+    }, 700);
   }
   showTip();
   setInterval(showTip, 8000);
 
   function refresh() {
     if (total <= 0) return;
-    var done = Math.max(0, total - needed);
-    var pct = Math.min(100, Math.round(done / total * 100));
+    var pct = Math.min(100, Math.round(Math.max(0, total - needed) / total * 100));
     document.getElementById("fill").style.width = pct + "%";
     document.getElementById("percent").innerHTML = pct + " %";
   }
 
   // Appelées par GMod.
-  function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+  function GameDetails(servername, serverurl, mapname) {
     document.getElementById("server").innerHTML = servername + " · " + mapname;
   }
   function SetFilesTotal(t) { total = t; refresh(); }
   function SetFilesNeeded(n) { needed = n; refresh(); }
   function DownloadingFile(fileName) {
-    document.getElementById("file").innerHTML = fileName;
+    document.getElementById("file").innerHTML = "Téléchargement : " + fileName;
     needed = Math.max(0, needed - 1);
     refresh();
   }
   function SetStatusChanged(status) {
-    document.getElementById("status").innerHTML = status + ' <span id="percent"></span>';
-    refresh();
+    var labels = { "Lua Started!": "L'île se réveille…", "Starting Lua...": "Préparation de l'île…",
+      "Sending client info...": "Présentation au douanier…", "Retrieving server info...": "Arrivée au port…" };
+    document.getElementById("status").innerHTML = labels[status] || status;
   }
 </script>
 </body>
