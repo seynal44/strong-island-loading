@@ -73,6 +73,15 @@
     -webkit-transition: opacity 0.7s; transition: opacity 0.7s; }
   #tip b { color: #ffd400; }
 
+  #discord { display: inline-block; margin-top: 22px; padding: 10px 22px; border-radius: 22px; font-size: 20px;
+    font-weight: 800; background: #5865f2; color: #ffffff; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
+  #discord b { color: #fff3a8; }
+
+  /* Première visite : le téléchargement des packs Workshop prend plusieurs minutes, une seule fois. */
+  #notice { margin-bottom: 14px; padding: 10px 16px; border-radius: 10px; font-size: 17px; line-height: 23px;
+    background: rgba(10, 6, 20, 0.62); border-left: 5px solid #009b3a; color: #fff3d6; }
+  #notice b { color: #ffd400; }
+
   /* Progression (au-dessus de la petite fenêtre de GMod, en bas à droite) */
   #bottom { position: absolute; left: 50%; width: 900px; margin-left: -450px; bottom: 130px; }
   #statusline { font-size: 17px; font-weight: 800; margin-bottom: 9px; color: #fff3d6;
@@ -136,9 +145,12 @@
     <div class="label">LE SAVAIS-TU ?</div>
     <div id="tip"></div>
   </div>
+  <div id="discord">Rejoins-nous sur Discord : <b>discord.gg/mGm5FZ5Zb</b></div>
 </div>
 
 <div id="bottom">
+  <div id="notice">Première visite ? L'île se télécharge (map, véhicules, tenues) : <b>5 à 7 minutes</b>, une seule
+    fois. Les fois suivantes, tu arrives en quelques secondes. Reste avec nous, ça vaut le voyage !</div>
   <div id="statusline"><span id="status">Connexion à l'île…</span><span id="percent"></span></div>
   <div id="bar"><div id="fill"></div></div>
   <div id="file"></div>
@@ -191,7 +203,8 @@
     "Un <b>contrat</b> sur quelqu'un ? Le tueur doit ramener la tête. La police aussi la cherche.",
     "Pick-up, camping-car, yacht : passe chez le <b>concessionnaire</b>, et à l'atelier de tuning.",
     "Au large, la brume monte et les courants te ramènent vers l'île.",
-    "Le <b>Trader</b> mise ton argent au jeu de la fusée. Jusqu'à x100… ou zéro."
+    "Le <b>Trader</b> mise ton argent au jeu de la fusée. Jusqu'à x100… ou zéro.",
+    "Annonces, règles, entraide : rejoins le <b>Discord</b>, discord.gg/mGm5FZ5Zb."
   ];
   var tipIndex = Math.floor(Math.random() * tips.length);
   var total = 0, needed = 0;
